@@ -1,34 +1,36 @@
-#Load tidyverse package#
+#Load tidyverse package - This is a coherent system of packages for data manipulation and visualisation
 library(tidyverse)
 
-#set working directory#
+#set working directory
 setwd("C:/git/Experiment/Rgraphics/dataSets")
 
-#read in the .csv file from the wd#
+#read in the .csv file from the working directory and define it as dat (common practice)
 dat <- read_csv("EconomistData.csv")
 
 #plot dat (our csv file) and make a chart with these x and y axes. Then colour the points by region#
 #aes is for adding 'aesthetics' to the chart#
-pc1 <- ggplot(dat, aes(x=CPI, y=HDI, color = Region))
+pc1 <- ggplot(dat, aes(x=CPI, y=HDI, color = Region)) #define x and and y axes and colour by Region#
+#you can run 'dat' in the console to quickly check column or row names. These are case-sensitive
+#alternatively, you can double click 'dat' in the enviornment and a new tab will appear above
 
-#we mean to start with this simple chart [pc1] and then add to it bit-by-bit#
-#pc2 is pc1 adding the r^2 (red) line - 'linetype' is a known aesthetic, not just the legend label#
-#the formula for the line is linear (uses only addition and subtraction) and uses the log(x) function#
-#the method used is therefore 'lm' which is a 'linear model'#
-#the formula is esentially y = x + log(x)#
+#we mean to start with this simple chart [pc1] and then add to it bit-by-bit
+#pc2 is pc1 adding the r^2 (red) line - 'linetype' is a known aesthetic, not just the legend label
+#the formula for the line is linear (uses only addition and subtraction) and uses the log(x) function
+#the method used is therefore 'lm' which is a 'linear model'
+#the formula is esentially y = x + log(x)
 #we are using no standard error (se) and want our line to be red#
 pc2 <- pc1 + 
   geom_smooth(mapping = aes(linetype = "r2"),
               method = "lm",
-              formula = y ~ x + log(x), se = FALSE,
+              formula = y ~ x + log(x), se = FALSE, #tilde (~) is used to separate the left and right sides of formula
               color = "red")
 
 #now we add chart points#
-#stroke adds size to the circles#
+#stroke adds thickness to the circles#
 pc3 <- pc2 + geom_point(shape = 1, size = 3, stroke = 1.25)
-#NB: We added the data points secondly so they would overlap the regression line#
+#NB: We have added the data points secondly so they would overlap the regression line#
 
-#Assign a name we want to be able to recall when we add labels. The c(country names) are the ones we want to identify#
+#Assign a name we want to be able to recall when we add labels. The c(country names) are the ones we want to identify
 
 pointsToLabel <- c("Russia", "Venezuela", "Iraq", "Myanmar", "Sudan",
                    "Afghanistan", "Congo", "Greece", "Argentina", "Brazil",
@@ -37,21 +39,23 @@ pointsToLabel <- c("Russia", "Venezuela", "Iraq", "Myanmar", "Sudan",
                    "United States", "Germany", "Britain", "Barbados", "Norway", "Japan",
                    "New Zealand", "Singapore")
 
-#we need to load in ggrepel which stops any labels going over one another - We can add [repel] to the end of geom_text#
+#we need to load in ggrepel which stops any labels going over one another - We can add [repel] to the end of geom_text
 library("ggrepel")
 
-#now we can add some labels to the chart#
-#What we want the labels to be... our 'Country' column#
-#data = filter(look in dat, look for column 'Country' and match its contents with PointsToLabel)#
-#grey20 gives the label names a unified colour. Their default is to be the same colour as the geom_point#
-#force gives some buffer away from its data point#
+#now we can add some labels to the chart
+#What we want the labels to be... our 'Country' column
+#data = filter(look in dat, look for column 'Country' and match its contents with PointsToLabel)
+#grey20 gives the label names a unified colour. Their default is to be the same colour as the geom_point
+#force gives some buffer away from its data point
 pc4 <- pc3 +
             geom_text_repel(aes(label = Country),
             data = filter(dat, Country %in% pointsToLabel),               
             color = "grey20",
             force = 10)
 
-#dat is my data frame and Region is the column name I want to change#
+#dat is my data frame and Region is the column name I want to change
+#this will change the output of 'dat' even if it is already opened in the tab above
+#we use \n for line breaks so that they do not make the legend too congested 
 dat$Region <- factor(dat$Region,
                      levels = c("EU W. Europe",
                                 "Americas",
@@ -65,21 +69,26 @@ dat$Region <- factor(dat$Region,
                                 "Central &\nEastern Europe",
                                 "Middle East &\nnorth Africa",
                                 "Sub-Saharan\nAfrica"))
-#UNSURE WHAT THIS IS DOING#
+
+#So, the above has now changed all items in the 'Region' column to different names
+
+#####UNSURE WHAT THIS IS DOING#####
 pc4$data <- dat
 
-#load in grid from the library#
+#load in grid from the library - This adds an nx by ny rectangular grid to an existing plot
 library(grid)
 
-#WHAT'S THE DIFFERENCE BETWEEN .9 AND 0.9 IN THE SCALE_X_CONTINUOUS#
-#the colour manual just assigns new, personalised colours to each of the groupings#
+##### WHAT'S THE DIFFERENCE BETWEEN .9 AND 0.9 IN THE SCALE_X_CONTINUOUS? ####
+#the colour manual just assigns new, personalised colours to each of the groupings
 pc5 <- pc4 +
-  scale_x_continuous(name = "Corruption Perception Index, 2011 (10 = least corrupt)",
+  scale_x_continuous(name = "Corruption Perception Index, 2011 (10 = least corrupt)", #title
                      limits = c(.9, 10.5),
-                     breaks = 1:10) +
-  scale_y_continuous(name = "Human Development Index, 2011 (1 = best)",
+                     breaks = 1:10) + #even intervals of 1 unit between 1 and 10
+  scale_y_continuous(name = "Human Development Index, 2011 (1 = best)", #title
                      limits = c(0.2,1.0),
-                     breaks = seq(0.2, 1.0, by = 0.1)) +
+                     breaks = seq(0.2, 1.0, by = 0.1)) + #sequential intervals of 0.1 between 0.2 and 1.0
+ 
+  ##HINT: Use the American 'color', not the English 'colour'##
   scale_color_manual(name = "",
                      values = c("#24576D",
                                 "#099DD7",
@@ -87,14 +96,16 @@ pc5 <- pc4 +
                                 "#248E84",
                                 "#F2583F",
                                 "#96503F"),
-                     guide = guide_legend(nrow = 1, order = 1)) +
-  scale_alpha_discrete(range = c(0, 1),
+                     guide = guide_legend(nrow = 1, order = 1)) + #the guide argument: there is one guide only
+  scale_alpha_discrete(range = c(0, 1), #this alters the transparency of the data points - must be n>=0, n<=1
                        guide = FALSE) +
+  #####Not sure why guide = FALSE here #####
+  
   scale_linetype(name = "",
                  breaks = "r2",
                  labels = list(bquote(R^2==.(mr2))),
                  guide = guide_legend(override.aes = list(linetype = 1, size = 2, color = "red"), order = 2)) +
-  ggtitle("Corruption and Human development")+
+  ggtitle("Corruption and Human development") +
   labs(caption="Sources: Transparency International; UN Human Development Report") +
   theme_bw() +
   theme(panel.border = element_blank(),
@@ -115,9 +126,9 @@ library(grid)
 pc6 <- pc5 +
   theme_minimal() + #start with a minimal theme and then add what we need#
   theme(text = element_text(color = "grey20"),
-    legend.position = c("top"), # position the legend in the upper-left 
+    legend.position = c("top"), #position the legend in the upper-left 
     legend.direction = "horizontal",
-    legend.justification = 0.1, # anchor point for legend.position.
+    legend.justification = 0.1, #anchor point for legend.position#
     legend.text = element_text(size = 11, color = "gray10"),
     axis.text = element_text(face = "italic"),
     axis.title.x = element_text(vjust = -1), # move title away from axis
@@ -131,8 +142,8 @@ pc6 <- pc5 +
 #info on the variance explained by the model represented by the trend line#
 #Let's fit the model and then think about how to get it on to the graph#
 mr2 <- summary(lm(HDI ~ CPI +log(CPI), data = dat))$r.squared
-mr2 <-paste0(format(mr2, digits = 2), "%") # this addds the percent symbol and two figure of the original mr2#
-#so this has been calculated at 0.52% as seen in our environment# 
+mr2 <-paste0(format(mr2, digits = 2), "%") # this expresses the result as a percentage and round to 2 s.f#
+#so this has been calculated at 0.52% as seen in our environment values# 
 
-pc6
-ggsave("economist_chart.png")
+pc6 #plots final chart before saving#
+ggsave("economist_chart.png") #saves as .png - you can change .png to other file types if needed# 
