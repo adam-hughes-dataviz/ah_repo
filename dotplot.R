@@ -7,9 +7,9 @@ library(ggplot2)
 landdata <- read.csv("landdata-states.csv")
 
 #define p1, adding x and y variables, a theme and a size for the non-data sections of the chart
-p1 <- ggplot(landdata,
-             aes(x = State, 
-                 y = Home.Price.Index)) +
+#I have included a subset that excludes DC as it is not a state and I didn't want it to show in the visual
+p1 <- ggplot(subset(landdata, !State %in% c("DC"))) +
+             aes(x = State, y = Home.Price.Index) +
   theme(legend.position = "top",
         axis.text = element_text(size = 6))
 
