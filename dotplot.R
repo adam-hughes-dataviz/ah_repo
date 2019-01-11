@@ -18,7 +18,7 @@ p2 <- p1 + geom_point(aes(color = Date),
                       alpha = 0.5,
                       size = 1.5,
                       position = position_jitter(width = 0.25, height = 0))
-#try deleting the position = position_jitter to discover its importance 
+#try changing the width value in the position jitter to see how this effects the data points
 
 #Now we can change the x-axis name and scale the key in three discrete intervals while keeping the colours continuous
 p2 + scale_x_discrete(name="State Abbreviation") +
