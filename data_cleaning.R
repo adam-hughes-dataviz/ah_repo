@@ -21,3 +21,4 @@ newdata.l$variable = as.character(newdata.l$variable)
 newdata.l$variable=substr(newdata.l$variable,2,nchar(newdata.l$variable))
 
 newdata.l = separate(newdata.l,"variable",into = c("year","var"),sep = "_")
+write.csv(newdata.l, "newdata.l.csv")
