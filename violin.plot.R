@@ -23,7 +23,7 @@ violin.l = melt(violin, id.vars = "country", variable.name = "bmi_category")
 #draw ggplot as below 
 p <- ggplot(violin.l, aes(factor(bmi_category), value)) +
   geom_violin(aes(fill = bmi_category), trim = F) +
-  scale_fill_manual(values = c("#F0826D", "#BC2629", "#8F1B13")) +
+  scale_fill_manual(values = c("#109e68", "#893f90", "#0089cc")) +
   labs(x = "", y = "Prevalence of wasting, %") +
   theme(axis.title.x = element_blank(),
         axis.text.x = element_blank(),
