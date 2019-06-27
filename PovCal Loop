@@ -1,0 +1,41 @@
+list.of.packages <- c("httr","jsonlite","lubridate","tidyverse","data.table")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+lapply(list.of.packages, require, character.only=T)
+
+#Querying a Web service API typically involves the following steps:
+# 1.submit the request
+# 2.check for any server error
+# 3.parse the response
+# 4.convert to a data frame
+
+setwd("C:/git/2019 Country profile")
+Regions <- read.csv("Regional dataset - key.csv",header = F)
+Regions$V2 <- str_remove_all(Regions$V2," ")
+
+#first, we create a path#
+path <- "http://iResearch.worldbank.org/PovcalNet/PovcalNetAPI.ashx?"
+
+param190 <- "PovertyLine=1.9&Countries="
+param320 <- "PovertyLine=3.2&Countries="
+param2 <- "&RefYears=1999,2005,2010,2015&display=a"
+
+datalist190 <- list()
+datalist320 <- list()
+
+for(i in 1:nrow(Regions)){
+  country_list <- Regions[i,2]
+  data <- read.csv(paste0(path,param190,country_list,param2))
+  data$Region <- Regions[i,1]
+  datalist190[[i]] <- data
+  
+  data <- read.csv(paste0(path,param320,country_list,param2))
+  data$Region <- Regions[i,1]
+  datalist320[[i]] <- data
+  message(Regions[i,1])
+}
+
+cp_poverty_190 <- rbindlist(datalist190)
+cp_poverty_320 <- rbindlist(datalist320)
+write.csv(cp_poverty_190,"cp_poverty_190.csv")
+write.csv(cp_poverty_320,"cp_poverty_320.csv")
