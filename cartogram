@@ -1,0 +1,26 @@
+list.of.packages <- c("maptools","cartogram","tidyverse","dplyr","broom","raster","tmap","plyr","rgeos")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+lapply(list.of.packages, require, character.only=T)
+
+setwd("C:/git/Cartogram")
+
+overweight_data <- read.csv("JME Overweight_AH.csv")
+overweight_df <- subset(overweight_data, Latest.Estimate==" Latest " & Short.Source!=" CFSVA ")
+overweight_df <- overweight_df[,c("ISO","National")]
+overweight_df <- overweight_df[-c(1),]
+
+names(overweight_df)[1]="ISO3"
+names(overweight_df)[2]="overweight"
+overweight_df$overweight=as.numeric(as.character(overweight_df$overweight))
+
+#RUN THIS SECTION ONLY#
+overweight_df$overweight_sqr=overweight_df$overweight^1
+data("wrld_simpl")
+wrld_simpl=merge(wrld_simpl,overweight_df,by="ISO3")
+afr=wrld_simpl[wrld_simpl$REGION==2,]
+afr <- spTransform(afr, CRS("+init=epsg:3395"))
+
+afr_cont <- cartogram_cont(afr,"overweight_sqr", itermax = 100)
+tm_shape(afr_cont) + tm_polygons("overweight_sqr", style = "jenks") +
+  tm_layout(frame=FALSE)
