@@ -1,4 +1,4 @@
-list.of.packages <- c("maptools","cartogram","tidyverse","dplyr","broom","raster","tmap","plyr","rgeos")
+list.of.packages <- c("maptools","cartogram","tidyverse","dplyr","broom","raster","tmap","plyr","rgeos","viridis")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 lapply(list.of.packages, require, character.only=T)
@@ -13,6 +13,7 @@ overweight_df <- overweight_df[-c(1),]
 names(overweight_df)[1]="ISO3"
 names(overweight_df)[2]="overweight"
 overweight_df$overweight=as.numeric(as.character(overweight_df$overweight))
+reds = c("#FBD7CB","#F6B2A7","#F28E83","#ED695E","#E8443A")
 
 #RUN THIS SECTION ONLY#
 overweight_df$overweight_sqr=overweight_df$overweight^1
@@ -21,6 +22,28 @@ wrld_simpl=merge(wrld_simpl,overweight_df,by="ISO3")
 afr=wrld_simpl[wrld_simpl$REGION==2,]
 afr <- spTransform(afr, CRS("+init=epsg:3395"))
 
-afr_cont <- cartogram_cont(afr,"overweight_sqr", itermax = 100)
-tm_shape(afr_cont) + tm_polygons("overweight_sqr", style = "jenks") +
-  tm_layout(frame=FALSE)
+#iterate#
+afr_cont <- cartogram_cont(afr,"overweight_sqr", itermax = 50)
+
+#create style
+DI_style <- structure(
+  list(
+    bg.color = c(fill = "white", borders = "black",
+                 symbols = "grey80", dots = "grey80",
+                 lines = "black", text = "black", 
+                 na = "grey30", null = "grey15"),
+    aes.palette = list(seq = c("#FBD7CB","#F6B2A7","#F28E83","#ED695E","#E8443A"), div = "PiYG", cat = "Dark2"),
+    attr.color = "Black", 
+    panel.label.color = "Black",
+    panel.label.bg.color = "Black",
+    main.title.color = "Black"
+  ),
+  style = "DI"
+)
+#Load style and plot
+tmap_options(DI_style)
+tm_shape(afr_cont) +
+  tm_polygons("overweight_sqr", style = "jenks") +
+  tm_layout(frame = F) 
+
+#ADAM HUGHES#
